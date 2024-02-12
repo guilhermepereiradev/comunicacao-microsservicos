@@ -1,5 +1,6 @@
 package com.br.comunicacaoms.productapi.controllers.exceptions;
 
+import com.br.comunicacaoms.productapi.jwt.AuthenticationException;
 import com.br.comunicacaoms.productapi.services.exceptions.BusinessRuleException;
 import com.br.comunicacaoms.productapi.services.exceptions.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,6 +40,21 @@ public class ResourceExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<StandardError> businessException(BusinessRuleException e, HttpServletRequest request) {
         String error = "Business rule exception";
         HttpStatus status = HttpStatus.BAD_REQUEST;
+        StandardError standardError = StandardError.builder()
+                .timestamp(Instant.now())
+                .status(status.value())
+                .error(error)
+                .message(e.getMessage())
+                .path(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.status(status).body(standardError);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<StandardError> authenticationException(AuthenticationException e, HttpServletRequest request) {
+        String error = "Authorization exception";
+        HttpStatus status = HttpStatus.UNAUTHORIZED;
         StandardError standardError = StandardError.builder()
                 .timestamp(Instant.now())
                 .status(status.value())
