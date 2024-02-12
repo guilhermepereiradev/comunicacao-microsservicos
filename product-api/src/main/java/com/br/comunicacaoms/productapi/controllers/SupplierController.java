@@ -36,4 +36,19 @@ public class SupplierController {
 
         return ResponseEntity.ok(suppliersResponse);
     }
+
+    @GetMapping(params = "name")
+    public ResponseEntity<List<SupplierResponse>> findAByName(@RequestParam String name) {
+        var suppliers = supplierService.findByName(name);
+        List<SupplierResponse> suppliersResponse = suppliers.stream().map(SupplierResponse::new).toList();
+
+        return ResponseEntity.ok(suppliersResponse);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<SupplierResponse> findById(@PathVariable Integer id) {
+        var supplier = supplierService.findById(id);
+
+        return ResponseEntity.ok(new SupplierResponse(supplier));
+    }
 }

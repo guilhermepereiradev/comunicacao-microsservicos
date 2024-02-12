@@ -10,6 +10,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -30,10 +31,25 @@ public class CategoryController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CategoryResponse>> findAll() {
+    public ResponseEntity<List<CategoryResponse>> findAll(@RequestParam(required = false) String description) {
         var categories = categoryService.findAll();
         List<CategoryResponse> categoriesResponse = categories.stream().map(CategoryResponse::new).toList();
 
         return ResponseEntity.ok(categoriesResponse);
+    }
+
+    @GetMapping(params = "description")
+    public ResponseEntity<List<CategoryResponse>> findByDescription(@RequestParam String description) {
+        var categories = categoryService.findByDescription(description);
+        List<CategoryResponse> categoriesResponse = categories.stream().map(CategoryResponse::new).toList();
+
+        return ResponseEntity.ok(categoriesResponse);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<CategoryResponse> findById(@PathVariable Integer id) {
+        var category = categoryService.findById(id);
+
+        return ResponseEntity.ok(new CategoryResponse(category));
     }
 }
