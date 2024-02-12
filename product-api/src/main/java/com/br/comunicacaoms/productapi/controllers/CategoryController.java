@@ -52,4 +52,21 @@ public class CategoryController {
 
         return ResponseEntity.ok(new CategoryResponse(category));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteById(@PathVariable Integer id) {
+       categoryService.delete(id);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<CategoryResponse> update(@Valid @RequestBody CategoryRequest request, @PathVariable Integer id) {
+        var category = categoryService.findById(id);
+        BeanUtils.copyProperties(request, category);
+
+        category = categoryService.save(category);
+
+        return ResponseEntity.ok(new CategoryResponse(category));
+    }
 }

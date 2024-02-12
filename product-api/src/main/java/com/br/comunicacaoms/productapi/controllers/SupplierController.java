@@ -51,4 +51,20 @@ public class SupplierController {
 
         return ResponseEntity.ok(new SupplierResponse(supplier));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteById(@PathVariable Integer id) {
+        supplierService.delete(id);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<SupplierResponse> update(@Valid @RequestBody SupplierRequest request, @PathVariable Integer id) {
+        var supplier = supplierService.findById(id);
+        BeanUtils.copyProperties(request, supplier);
+
+        supplier = supplierService.save(supplier);
+        return ResponseEntity.ok(new SupplierResponse(supplier));
+    }
 }

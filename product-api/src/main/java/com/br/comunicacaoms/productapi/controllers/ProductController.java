@@ -58,4 +58,22 @@ public class ProductController {
         var product = productService.findById(id);
         return ResponseEntity.ok(new ProductResponse(product));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ProductResponse> deleteById(@PathVariable Integer id) {
+        productService.delete(id);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ProductResponse> update(@Valid @RequestBody ProductRequest request, @PathVariable Integer id) {
+        var product = productService.findById(id);
+        product.setName(request.name());
+        product.setQuantityAvailable(request.quantityAvailable());
+
+        product = productService.save(product, request.categoryId(), request.supplierId());
+
+        return ResponseEntity.ok(new ProductResponse(product));
+    }
 }

@@ -2,9 +2,11 @@ package com.br.comunicacaoms.productapi.services;
 
 import com.br.comunicacaoms.productapi.model.Category;
 import com.br.comunicacaoms.productapi.repositories.CategoryRepository;
+import com.br.comunicacaoms.productapi.services.exceptions.BusinessRuleException;
 import com.br.comunicacaoms.productapi.services.exceptions.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,5 +33,15 @@ public class CategoryService {
     public Category findById(Integer id) {
         return categoryRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("Category not found for id: " + id));
+    }
+
+    @Transactional
+    public void delete(Integer id) {
+        try {
+            categoryRepository.delete(findById(id));
+            categoryRepository.flush();
+        } catch (DataIntegrityViolationException e) {
+            throw new BusinessRuleException("Cannot delete category because it is in use.");
+        }
     }
 }

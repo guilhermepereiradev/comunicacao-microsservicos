@@ -49,4 +49,9 @@ public class ProductService {
         return productRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("Product not found for id: " + id));
     }
+
+    @Transactional
+    public void delete(Integer id) {
+        productRepository.delete(findById(id));
+    }
 }
