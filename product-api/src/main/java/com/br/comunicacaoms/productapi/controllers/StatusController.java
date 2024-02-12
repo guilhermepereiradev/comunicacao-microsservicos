@@ -1,4 +1,4 @@
-package com.br.comunicacaoms.productapi;
+package com.br.comunicacaoms.productapi.controllers;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
