@@ -35,4 +35,8 @@ public class Product {
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    public void updateStock(Integer quantity) {
+        this.quantityAvailable -= quantity;
+    }
 }

@@ -1,6 +1,5 @@
 package com.br.comunicacaoms.productapi.services;
 
-import com.br.comunicacaoms.productapi.model.Category;
 import com.br.comunicacaoms.productapi.model.Supplier;
 import com.br.comunicacaoms.productapi.repositories.SupplierRepository;
 import com.br.comunicacaoms.productapi.services.exceptions.BusinessRuleException;
