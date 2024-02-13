@@ -1,4 +1,4 @@
-package com.br.comunicacaoms.productapi.configs.interceptor;
+package com.br.comunicacaoms.productapi.config.interceptor;
 
 import com.br.comunicacaoms.productapi.modules.jwt.service.JwtService;
 import jakarta.servlet.http.HttpServletRequest;

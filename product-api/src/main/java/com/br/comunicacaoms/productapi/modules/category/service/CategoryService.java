@@ -2,8 +2,8 @@ package com.br.comunicacaoms.productapi.modules.category.service;
 
 import com.br.comunicacaoms.productapi.modules.category.model.Category;
 import com.br.comunicacaoms.productapi.modules.category.repository.CategoryRepository;
-import com.br.comunicacaoms.productapi.configs.exceptions.BusinessRuleException;
-import com.br.comunicacaoms.productapi.configs.exceptions.EntityNotFoundException;
+import com.br.comunicacaoms.productapi.config.exceptions.BusinessRuleException;
+import com.br.comunicacaoms.productapi.config.exceptions.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;

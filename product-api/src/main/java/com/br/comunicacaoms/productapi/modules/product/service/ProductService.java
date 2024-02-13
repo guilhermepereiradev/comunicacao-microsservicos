@@ -1,7 +1,7 @@
 package com.br.comunicacaoms.productapi.modules.product.service;
 
-import com.br.comunicacaoms.productapi.modules.product.dto.ProductQuantityDTO;
-import com.br.comunicacaoms.productapi.modules.product.dto.ProductStockDTO;
+import com.br.comunicacaoms.productapi.modules.product.dto.*;
+import com.br.comunicacaoms.productapi.modules.sales.clients.SalesClient;
 import com.br.comunicacaoms.productapi.modules.sales.dto.SalesConfirmationDTO;
 import com.br.comunicacaoms.productapi.modules.sales.enums.SalesStatus;
 import com.br.comunicacaoms.productapi.modules.product.model.Product;
@@ -9,8 +9,8 @@ import com.br.comunicacaoms.productapi.modules.category.service.CategoryService;
 import com.br.comunicacaoms.productapi.modules.sales.rabbitmq.SalesConfirmationSender;
 import com.br.comunicacaoms.productapi.modules.product.repository.ProductRepository;
 import com.br.comunicacaoms.productapi.modules.supplier.service.SupplierService;
-import com.br.comunicacaoms.productapi.configs.exceptions.BusinessRuleException;
-import com.br.comunicacaoms.productapi.configs.exceptions.EntityNotFoundException;
+import com.br.comunicacaoms.productapi.config.exceptions.BusinessRuleException;
+import com.br.comunicacaoms.productapi.config.exceptions.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +30,7 @@ public class ProductService {
     private final CategoryService categoryService;
     private final SupplierService supplierService;
     private final SalesConfirmationSender salesConfirmationSender;
+    private final SalesClient salesClient;
 
     @Transactional
     public Product save(Product product, Integer categoryId, Integer supplierId) {
@@ -117,6 +118,38 @@ public class ProductService {
         if (salesProduct.quantity() > existingProduct.getQuantityAvailable()) {
             throw new BusinessRuleException(
                     String.format("The product %s is out of stock", existingProduct.getName()));
+        }
+    }
+
+    public ProductSalesResponse findProductSales(Integer id) {
+        var product = findById(id);
+        try {
+            var salesId = salesClient.findSalesByProductId(product.getId())
+                    .orElseThrow(() -> new BusinessRuleException("The sales was not found by this product"));
+
+            return new ProductSalesResponse(product, salesId);
+        } catch (Exception ex) {
+            throw new BusinessRuleException("There was an error trying to get the product's sales.");
+        }
+    }
+
+    public SuccessResponse checkProductStock(ProductCheckStockRequest request) {
+        if (isEmpty(request) || isEmpty(request.products())) {
+            throw new BusinessRuleException("The request data and products must be informed.");
+        }
+
+        request.products().forEach(this::validadeStock);
+        return new SuccessResponse("The stock is ok!");
+    }
+
+    private void validadeStock(ProductQuantityDTO productQuantityDTO) {
+        if (isEmpty(productQuantityDTO.productId()) || isEmpty(productQuantityDTO.quantity())) {
+            throw new BusinessRuleException("Product Id and quantity must be informed.");
+        }
+
+        var product = findById(productQuantityDTO.productId());
+        if (productQuantityDTO.quantity() > product.getQuantityAvailable()) {
+            throw new BusinessRuleException(String.format("The product %s is out of stock", product.getName()));
         }
     }
 }

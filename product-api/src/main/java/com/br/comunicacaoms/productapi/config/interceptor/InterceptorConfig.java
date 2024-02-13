@@ -1,6 +1,5 @@
-package com.br.comunicacaoms.productapi.configs.interceptor;
+package com.br.comunicacaoms.productapi.config.interceptor;
 
-import com.br.comunicacaoms.productapi.configs.interceptor.AuthenticationInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;

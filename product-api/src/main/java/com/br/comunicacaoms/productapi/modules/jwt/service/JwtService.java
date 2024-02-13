@@ -1,6 +1,6 @@
 package com.br.comunicacaoms.productapi.modules.jwt.service;
 
-import com.br.comunicacaoms.productapi.configs.exceptions.AuthenticationException;
+import com.br.comunicacaoms.productapi.config.exceptions.AuthenticationException;
 import com.br.comunicacaoms.productapi.modules.jwt.dto.JwtResponse;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;

@@ -1,4 +1,4 @@
-package com.br.comunicacaoms.productapi.configs;
+package com.br.comunicacaoms.productapi.config;
 
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;

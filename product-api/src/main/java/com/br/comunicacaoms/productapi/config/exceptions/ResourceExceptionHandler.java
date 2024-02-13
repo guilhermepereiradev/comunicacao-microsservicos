@@ -1,4 +1,4 @@
-package com.br.comunicacaoms.productapi.configs.exceptions;
+package com.br.comunicacaoms.productapi.config.exceptions;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;

@@ -1,7 +1,6 @@
 package com.br.comunicacaoms.productapi.modules.product.controller;
 
-import com.br.comunicacaoms.productapi.modules.product.dto.ProductRequest;
-import com.br.comunicacaoms.productapi.modules.product.dto.ProductResponse;
+import com.br.comunicacaoms.productapi.modules.product.dto.*;
 import com.br.comunicacaoms.productapi.modules.product.model.Product;
 import com.br.comunicacaoms.productapi.modules.product.service.ProductService;
 import jakarta.validation.Valid;
@@ -75,5 +74,14 @@ public class ProductController {
         product = productService.save(product, request.categoryId(), request.supplierId());
 
         return ResponseEntity.ok(new ProductResponse(product));
+    }
+    @PostMapping("/check-stock")
+    public ResponseEntity<SuccessResponse> checkProductStock(@RequestBody ProductCheckStockRequest request) {
+        return ResponseEntity.ok(productService.checkProductStock(request));
+    }
+
+    @GetMapping("/{id}/sales")
+    public ResponseEntity<ProductSalesResponse> findProductSales(@PathVariable Integer id) {
+        return ResponseEntity.ok(productService.findProductSales(id));
     }
 }
