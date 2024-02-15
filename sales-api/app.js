@@ -2,7 +2,8 @@ import express from 'express'
 import { connectMongoDb } from './src/config/db/mongodbConfig.js';
 import { createInitialData } from './src/config/db/initialData.js';
 import checkToken from "./src/config/auth/checkToken.js";
-import { connectRabbitMq } from "./src/config/rabbitmq/rabbiConfig.js";
+import { connectRabbitMq } from "./src/config/rabbitmq/rabbitConfig.js";
+import { sendMessageToProductStockUpdateQueue } from './src/modules/product/rabbitmq/productStockUpdateSender.js';
 
 const app = express();
 const env = process.env;
