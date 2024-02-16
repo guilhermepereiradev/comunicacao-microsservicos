@@ -13,7 +13,6 @@ export default async (req, res, next) => {
             throw new AuthException(httpStatus.UNAUTHORIZED, "Access token was not informed.")
         }
 
-        console.log(authorization);
         let accesToken = authorization;
 
         if (accesToken.includes(" ")) {

@@ -6,15 +6,15 @@ export async function createInitialData() {
     await Order.create({
         products: [
             {
-                productId: 1001,
+                productId: 1000,
                 quantity: 3
             },
             {
-                productId: 1002,
+                productId: 1001,
                 quantity: 2
             },
             {
-                productId: 1003,
+                productId: 1002,
                 quantity: 1
             }
         ],
@@ -35,7 +35,7 @@ export async function createInitialData() {
                 quantity: 4
             },
             {
-                productId: 1003,
+                productId: 1002,
                 quantity: 2
             }
         ],

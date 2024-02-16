@@ -8,14 +8,13 @@ import ProductClient from "../../product/client/ProductClient.js";
 class OrderService {
     async createOrder(req) {
         try {
-            
-            let products = req.body;
-            this.validateOrderData(products);
+            let orderData = req.body;
+            this.validateOrderData(orderData);
 
             const { authUser } = req;
             const { authorization } = req.headers;
 
-            let order = this.createInitialOrderData(products, authUser);
+            let order = this.createInitialOrderData(orderData, authUser);
             await this.validateProductStock(order, authorization);
 
             let createdOrder = await OrderRepository.save(order);
@@ -34,6 +33,29 @@ class OrderService {
         }
     }
 
+    async findById(req) {
+        try {
+            const { id } = req.params;
+            this.validateInformedId(id);
+
+            let order = await OrderRepository.findById(id);
+
+            if (!order) {
+                throw new OrderException(httpStatus.NOT_FOUND, `Order not found for ID: ${id}`);
+            }
+
+            return {
+                status: httpStatus.SUCCESS,
+                order
+            };
+        } catch(err) {
+            return {
+                status: err.status ? err.status : httpStatus.BAD_REQUEST,
+                message: err.message
+            }
+        }
+    }
+
     async updateOrder(message) {
         try {
             const orderMessage = JSON.parse(message);
@@ -45,8 +67,8 @@ class OrderService {
 
             let existingOrder = await OrderRepository.findById(orderMessage.salesId);
 
-            if (order && order.status !== existingOrder.status) {
-                existingOrder.status = order.status;
+            if (existingOrder && existingOrder.status !== orderMessage.status) {
+                existingOrder.status = orderMessage.status;
                 existingOrder.updatedAt = new Date();
                 
                 await OrderRepository.save(existingOrder);
@@ -57,37 +79,44 @@ class OrderService {
         }
     }
 
-    createInitialOrderData(products, authUser) {
+    createInitialOrderData(orderData, authUser) {
         return {
             user: authUser,
             status: PENDING,
             createdAt: new Date(),
             updatedAt: new Date(),
-            products: orderData
+            products: orderData.products
         }
     }
 
     validateOrderData(data) {
         if (!data || !data.products) {
-            throw new OrderException("The products must be informed!");
+            throw new OrderException(httpStatus.BAD_REQUEST, "The products must be informed!");
         }
     }
 
     async validateProductStock(order, token) {
-        let stockIsOut = await ProductClient.checkProductStock(order.products, token);
+        let stockIsOk = await ProductClient.checkProductStock(order, token);
 
-        if (stockIsOut) {
+        if (!stockIsOk) {
             throw new OrderException(httpStatus.BAD_REQUEST, "The stock is out for the products.");
         }
     }
 
     sendMessage(createdOrder) {
+
         const message = {
             salesId: createdOrder.id,
             products: createdOrder.products
         };
 
         sendMessageToProductStockUpdateQueue(message);
+    }
+
+    validateInformedId(id) {
+        if (!id) {
+            throw new OrderException(httpStatus.BAD_REQUEST, "The order id must be informed.");
+        }
     }
 }
 
