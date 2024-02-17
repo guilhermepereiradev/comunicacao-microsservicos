@@ -48,6 +48,21 @@ public class ResourceExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(status).body(standardError);
     }
 
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<Object> handleExceptionInternal(ValidationException ex, HttpServletRequest request) {
+        String error = "Could not process request";
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        StandardError standardError = StandardError.builder()
+                .timestamp(Instant.now())
+                .status(status.value())
+                .error(error)
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.status(status).body(standardError);
+    }
+
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<StandardError> authenticationException(AuthenticationException e, HttpServletRequest request) {
         String error = "Authorization exception";

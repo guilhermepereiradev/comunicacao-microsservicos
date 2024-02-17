@@ -1,16 +1,20 @@
 package com.br.comunicacaoms.productapi.modules.product.service;
 
+import com.br.comunicacaoms.productapi.config.RequestUtils;
 import com.br.comunicacaoms.productapi.config.exceptions.BusinessRuleException;
 import com.br.comunicacaoms.productapi.config.exceptions.EntityNotFoundException;
+import com.br.comunicacaoms.productapi.config.exceptions.ValidationException;
 import com.br.comunicacaoms.productapi.modules.category.service.CategoryService;
 import com.br.comunicacaoms.productapi.modules.product.dto.*;
 import com.br.comunicacaoms.productapi.modules.product.model.Product;
 import com.br.comunicacaoms.productapi.modules.product.repository.ProductRepository;
 import com.br.comunicacaoms.productapi.modules.sales.clients.SalesClient;
 import com.br.comunicacaoms.productapi.modules.sales.dto.SalesConfirmationDTO;
+import com.br.comunicacaoms.productapi.modules.sales.dto.SalesProductResponse;
 import com.br.comunicacaoms.productapi.modules.sales.enums.SalesStatus;
 import com.br.comunicacaoms.productapi.modules.sales.rabbitmq.SalesConfirmationSender;
 import com.br.comunicacaoms.productapi.modules.supplier.service.SupplierService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +35,9 @@ public class ProductService {
     private final SupplierService supplierService;
     private final SalesConfirmationSender salesConfirmationSender;
     private final SalesClient salesClient;
+
+    private final String TRANSACTION_ID = "transactionid";
+    private final String SERVICE_ID = "serviceid";
 
     @Transactional
     public Product save(Product product, Integer categoryId, Integer supplierId) {
@@ -66,7 +73,14 @@ public class ProductService {
 
     @Transactional
     public void delete(Integer id) {
-        productRepository.delete(findById(id));
+        var product = findById(id);
+        var sales = getSalesByProductId(id);
+
+        if (!sales.salesIds().isEmpty()) {
+            throw new ValidationException("Cannot delete product it is in use.");
+        }
+
+        productRepository.delete(product);
     }
 
     public void updateProductStock(ProductStockDTO product) {
@@ -75,7 +89,7 @@ public class ProductService {
             updateStock(product);
         } catch (Exception ex) {
             log.error("Error while trying to update stock for message with error {}", ex.getMessage(), ex);
-            var rejectMessage = new SalesConfirmationDTO(product.salesId(), SalesStatus.REJECT);
+            var rejectMessage = new SalesConfirmationDTO(product.salesId(), SalesStatus.REJECT, product.salesId());
             salesConfirmationSender.sendSalesConfirmationMessage(rejectMessage);
         }
     }
@@ -109,7 +123,7 @@ public class ProductService {
 
         if(!productsForUpdate.isEmpty()) {
             productRepository.saveAll(productsForUpdate);
-            var approvedMessage = new SalesConfirmationDTO(product.salesId(), SalesStatus.APPROVED);
+            var approvedMessage = new SalesConfirmationDTO(product.salesId(), SalesStatus.APPROVED, product.transactionid());
             salesConfirmationSender.sendSalesConfirmationMessage(approvedMessage);
         }
     }
@@ -122,24 +136,72 @@ public class ProductService {
     }
 
     public ProductSalesResponse findProductSales(Integer id) {
-        var product = findById(id);
         try {
-            var salesResponse = salesClient.findSalesByProductId(product.getId())
+            var currentRequest = RequestUtils.getCurrentRequest();
+            var transactionId = currentRequest.getHeader(TRANSACTION_ID);
+            var serviceId = currentRequest.getAttribute(SERVICE_ID);
+
+            log.info("Request to GET sales by productId: {} | [transactionid {} | serviceid {}]",
+                    id, transactionId, serviceId);
+
+            var product = findById(id);
+            var sales = getSalesByProductId(id);
+            var response = new ProductSalesResponse(product, sales.salesIds());
+
+            log.info("Response to GET sales by productId with data: {} | [transactionid {} | serviceid {}]",
+                    new ObjectMapper().writeValueAsString(response), transactionId, serviceId);
+
+            return response;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            throw new ValidationException("Erro");
+        }
+    }
+
+    private SalesProductResponse getSalesByProductId(Integer id) {
+        var currentRequest = RequestUtils.getCurrentRequest();
+        var transactionId = currentRequest.getHeader(TRANSACTION_ID);
+        try {
+            log.info("Sending request to Sales API with productId: {} | [transactionid {}]",
+                    id, transactionId);
+
+            var salesResponse = salesClient.findSalesByProductId(id)
                     .orElseThrow(() -> new BusinessRuleException("The sales was not found by this product"));
 
-            return new ProductSalesResponse(product, salesResponse.salesIds());
+            log.info("Success response from Sales-API with data: {} | [transactionid {}]",
+                    new ObjectMapper().writeValueAsString(salesResponse), transactionId);
+
+            return salesResponse;
         } catch (Exception ex) {
-            throw new BusinessRuleException("There was an error trying to get the product's sales.");
+            log.error(String.format("Error response from Sales-API | [transactionid %s]", transactionId));
+            throw new ValidationException(ex.getMessage());
         }
     }
 
     public SuccessResponse checkProductStock(ProductCheckStockRequest request) {
-        if (isEmpty(request) || isEmpty(request.products())) {
-            throw new BusinessRuleException("The request data and products must be informed.");
-        }
+        try {
+            var currentRequest = RequestUtils.getCurrentRequest();
+            var transactionId = currentRequest.getHeader(TRANSACTION_ID);
+            var serviceId = currentRequest.getAttribute(SERVICE_ID);
 
-        request.products().forEach(this::validadeStock);
-        return new SuccessResponse("The stock is ok!");
+            log.info("Request to POST product stock with data {} | [transactionid {} | serviceid {}]",
+                    new ObjectMapper().writeValueAsString(request), transactionId, serviceId);
+
+            if (isEmpty(request) || isEmpty(request.products())) {
+                throw new BusinessRuleException("The request data and products must be informed.");
+            }
+
+            request.products().forEach(this::validadeStock);
+            var response = new SuccessResponse("The stock is ok!");
+
+            log.info("Response to POST product stock with data: {} | [transactionid {} | serviceid {}]`",
+                    new ObjectMapper().writeValueAsString(response), transactionId, serviceId);
+
+            return response;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            throw new ValidationException(ex.getMessage());
+        }
     }
 
     private void validadeStock(ProductQuantityDTO productQuantityDTO) {
