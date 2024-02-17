@@ -2,7 +2,6 @@ package com.br.comunicacaoms.productapi.modules.product.dto;
 
 import com.br.comunicacaoms.productapi.modules.category.dto.CategoryResponse;
 import com.br.comunicacaoms.productapi.modules.product.model.Product;
-import com.br.comunicacaoms.productapi.modules.sales.dto.SalesProductResponse;
 import com.br.comunicacaoms.productapi.modules.supplier.dto.SupplierResponse;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -18,9 +17,9 @@ public record ProductSalesResponse(
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         LocalDateTime createAt,
 
-        SalesProductResponse sales) {
+        List<String> sales) {
 
-        public ProductSalesResponse(Product product, SalesProductResponse sales) {
+        public ProductSalesResponse(Product product, List<String> sales) {
                 this(product.getId(),
                         product.getName(),
                         new SupplierResponse(product.getSupplier()),

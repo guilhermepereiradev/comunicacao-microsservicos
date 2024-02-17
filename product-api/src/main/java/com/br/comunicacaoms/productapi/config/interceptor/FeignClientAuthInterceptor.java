@@ -4,9 +4,11 @@ import com.br.comunicacaoms.productapi.config.exceptions.BusinessRuleException;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+@Component
 public class FeignClientAuthInterceptor implements RequestInterceptor {
 
     private final String AUTHORIZATION = "Authorization";
@@ -25,7 +27,7 @@ public class FeignClientAuthInterceptor implements RequestInterceptor {
                     .getRequest();
         } catch (Exception ex) {
             ex.printStackTrace();
-            throw new BusinessRuleException("The currete request could not be processed.");
+            throw new BusinessRuleException("The current request could not be processed.");
         }
     }
 }

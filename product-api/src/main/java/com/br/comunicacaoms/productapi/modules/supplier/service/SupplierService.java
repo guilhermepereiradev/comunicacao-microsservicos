@@ -1,9 +1,9 @@
 package com.br.comunicacaoms.productapi.modules.supplier.service;
 
-import com.br.comunicacaoms.productapi.modules.supplier.model.Supplier;
-import com.br.comunicacaoms.productapi.modules.supplier.repository.SupplierRepository;
 import com.br.comunicacaoms.productapi.config.exceptions.BusinessRuleException;
 import com.br.comunicacaoms.productapi.config.exceptions.EntityNotFoundException;
+import com.br.comunicacaoms.productapi.modules.supplier.model.Supplier;
+import com.br.comunicacaoms.productapi.modules.supplier.repository.SupplierRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;

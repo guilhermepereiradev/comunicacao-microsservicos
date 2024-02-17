@@ -1,9 +1,9 @@
 package com.br.comunicacaoms.productapi.modules.product.dto;
 
 
-import com.br.comunicacaoms.productapi.modules.supplier.dto.SupplierResponse;
-import com.br.comunicacaoms.productapi.modules.product.model.Product;
 import com.br.comunicacaoms.productapi.modules.category.dto.CategoryResponse;
+import com.br.comunicacaoms.productapi.modules.product.model.Product;
+import com.br.comunicacaoms.productapi.modules.supplier.dto.SupplierResponse;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.time.LocalDateTime;

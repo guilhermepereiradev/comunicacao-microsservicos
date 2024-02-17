@@ -56,6 +56,48 @@ class OrderService {
         }
     }
 
+    async findAll() {
+        try {
+            let orders = await OrderRepository.findAll();
+
+            return {
+                status: httpStatus.SUCCESS,
+                orders
+            };
+        } catch(err) {
+            return {
+                status: err.status ? err.status : httpStatus.BAD_REQUEST,
+                message: err.message
+            }
+        }
+    }
+
+    async findByProductId(req) {
+        try {
+            const { productId } = req.params;
+            this.validateInformedProductId(productId);
+
+            let orders = await OrderRepository.findByProductId(productId);
+
+            if (!orders) {
+                throw new OrderException(httpStatus.NOT_FOUND, `No orders were found for product ID: ${id}`);
+            }
+
+            return {
+                status: httpStatus.SUCCESS,
+                salesIds: orders.map(order => {
+                    console.log(order)
+                    return order.id
+                })
+            };
+        } catch(err) {
+            return {
+                status: err.status ? err.status : httpStatus.BAD_REQUEST,
+                message: err.message
+            }
+        }
+    }
+
     async updateOrder(message) {
         try {
             const orderMessage = JSON.parse(message);
@@ -109,7 +151,6 @@ class OrderService {
 
             throw new OrderException(errorStatusCode, errorMessage)
         }
-
     }
 
     sendMessage(createdOrder) {
@@ -124,7 +165,13 @@ class OrderService {
 
     validateInformedId(id) {
         if (!id) {
-            throw new OrderException(httpStatus.BAD_REQUEST, "The order id must be informed.");
+            throw new OrderException(httpStatus.BAD_REQUEST, "The order ID must be informed.");
+        }
+    }
+
+    validateInformedProductId(productId) {
+        if (!productId) {
+            throw new OrderException(httpStatus.BAD_REQUEST, "The order's productId must be informed.");
         }
     }
 }

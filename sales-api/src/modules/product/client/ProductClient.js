@@ -15,9 +15,8 @@ class ProductClient {
             { products: order.products },
             { headers }
         )
-            .then(res => { })
-            .catch(err => {throw err});
-
+        .then(res => { })
+        .catch(err => { throw err });
     }
 }
 

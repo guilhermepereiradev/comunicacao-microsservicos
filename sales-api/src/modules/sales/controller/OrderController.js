@@ -12,6 +12,18 @@ class OrderController {
 
         return res.status(order.status).json(order);
     }
+
+    async findAll(req, res) {
+        let orders = await OrderService.findAll();
+
+        return res.status(orders.status).json(orders);
+    }
+
+    async findByProductId(req, res) {
+        let salesId = await OrderService.findByProductId(req);
+
+        return res.status(salesId.status).json(salesId);
+    }
 }
 
 export default new OrderController();

@@ -1,16 +1,16 @@
 package com.br.comunicacaoms.productapi.modules.product.service;
 
+import com.br.comunicacaoms.productapi.config.exceptions.BusinessRuleException;
+import com.br.comunicacaoms.productapi.config.exceptions.EntityNotFoundException;
+import com.br.comunicacaoms.productapi.modules.category.service.CategoryService;
 import com.br.comunicacaoms.productapi.modules.product.dto.*;
+import com.br.comunicacaoms.productapi.modules.product.model.Product;
+import com.br.comunicacaoms.productapi.modules.product.repository.ProductRepository;
 import com.br.comunicacaoms.productapi.modules.sales.clients.SalesClient;
 import com.br.comunicacaoms.productapi.modules.sales.dto.SalesConfirmationDTO;
 import com.br.comunicacaoms.productapi.modules.sales.enums.SalesStatus;
-import com.br.comunicacaoms.productapi.modules.product.model.Product;
-import com.br.comunicacaoms.productapi.modules.category.service.CategoryService;
 import com.br.comunicacaoms.productapi.modules.sales.rabbitmq.SalesConfirmationSender;
-import com.br.comunicacaoms.productapi.modules.product.repository.ProductRepository;
 import com.br.comunicacaoms.productapi.modules.supplier.service.SupplierService;
-import com.br.comunicacaoms.productapi.config.exceptions.BusinessRuleException;
-import com.br.comunicacaoms.productapi.config.exceptions.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -124,10 +124,10 @@ public class ProductService {
     public ProductSalesResponse findProductSales(Integer id) {
         var product = findById(id);
         try {
-            var salesId = salesClient.findSalesByProductId(product.getId())
+            var salesResponse = salesClient.findSalesByProductId(product.getId())
                     .orElseThrow(() -> new BusinessRuleException("The sales was not found by this product"));
 
-            return new ProductSalesResponse(product, salesId);
+            return new ProductSalesResponse(product, salesResponse.salesIds());
         } catch (Exception ex) {
             throw new BusinessRuleException("There was an error trying to get the product's sales.");
         }
