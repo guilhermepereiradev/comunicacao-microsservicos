@@ -1,8 +1,9 @@
 import Sequelize from "sequelize";
+import { DB_NAME, DB_USER, DB_PASSWORD, DB_HOST, DB_PORT } from "./../constants/secrets.js"
 
-const sequelize = new Sequelize("auth-db", "postgres", "12345678", {
-    host: "localhost",
-    port: 5433,
+const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASSWORD, {
+    host: DB_HOST,
+    port: DB_PORT,
     dialect: "postgres",
     quoteIdentifiers: false,
     define: {
@@ -11,6 +12,9 @@ const sequelize = new Sequelize("auth-db", "postgres", "12345678", {
         underscored: true,
         underscoredAll: true,
         freezeTableName: true,
+    },
+    pool: {
+        acquire: 180000
     }
 });
 

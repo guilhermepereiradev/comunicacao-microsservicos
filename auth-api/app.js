@@ -6,12 +6,7 @@ import tracing from "./scr/config/tracing.js";
 const app = express();
 const env = process.env;
 const PORT = env.PORT || 8080;
-
-db.createInitialData();
-
-app.use(express.json());
-
-app.use(tracing);
+const CONTAINER_ENV = "container";
 
 app.get("/api/status", (req, res) => {
     return res.status(200).json({
@@ -20,6 +15,23 @@ app.get("/api/status", (req, res) => {
         httpStatus: 200,
     })
 })
+
+app.use(express.json());
+
+startApplication()
+
+function startApplication() {
+    if (env.NODE_ENV !== CONTAINER_ENV) {
+        db.createInitialData();
+    }
+}
+
+app.get("/api/initial-data", (req, res) => {
+    db.createInitialData();
+    return res.status(200).json({ message: "Data created." })
+})
+
+app.use(tracing);
 
 app.use(userRoutes);
 
