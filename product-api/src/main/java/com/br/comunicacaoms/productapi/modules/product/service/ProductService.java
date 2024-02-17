@@ -149,7 +149,7 @@ public class ProductService {
 
         var product = findById(productQuantityDTO.productId());
         if (productQuantityDTO.quantity() > product.getQuantityAvailable()) {
-            throw new BusinessRuleException(String.format("The product %s is out of stock", product.getName()));
+            throw new BusinessRuleException(String.format("The product %d is out of stock", product.getId()));
         }
     }
 }

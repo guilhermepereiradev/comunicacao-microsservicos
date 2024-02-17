@@ -96,11 +96,20 @@ class OrderService {
     }
 
     async validateProductStock(order, token) {
-        let stockIsOk = await ProductClient.checkProductStock(order, token);
+        try {
+            await ProductClient.checkProductStock(order, token);
+        } catch (err) {
+            let errorMessage = "Cannot validade product stock.";
+            let errorStatusCode = httpStatus.BAD_REQUEST;
 
-        if (!stockIsOk) {
-            throw new OrderException(httpStatus.BAD_REQUEST, "The stock is out for the products.");
+            if (err.response && err.response.data) {
+                errorMessage = err.response.data.message;
+                errorStatusCode = err.response.data.status;
+            }
+
+            throw new OrderException(errorStatusCode, errorMessage)
         }
+
     }
 
     sendMessage(createdOrder) {
