@@ -15,7 +15,7 @@ const THREE_MINUTES = 180000;
 function startApplication() {
     if (env.NODE_ENV === CONTAINER_ENV) {
         console.info("Waiting for RabbitMQ and MongoDB containers to start...")
-        setInterval(() => {            
+        setTimeout(() => {            
             connectMongoDb();
             connectRabbitMq();
         }, THREE_MINUTES)

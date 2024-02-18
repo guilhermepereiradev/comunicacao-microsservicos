@@ -35,7 +35,9 @@ public class ProductService {
     private final SupplierService supplierService;
     private final SalesConfirmationSender salesConfirmationSender;
     private final SalesClient salesClient;
+    private final ObjectMapper objectMapper;
 
+    private final String AUTHORIZATION = "Authorization";
     private final String TRANSACTION_ID = "transactionid";
     private final String SERVICE_ID = "serviceid";
 
@@ -93,6 +95,7 @@ public class ProductService {
             salesConfirmationSender.sendSalesConfirmationMessage(rejectMessage);
         }
     }
+
     private void validateStockUpdateData(ProductStockDTO product) {
         if (isEmpty(product) || isEmpty(product.salesId())) {
             throw new BusinessRuleException("The product data and sales Id must be informed");
@@ -121,7 +124,7 @@ public class ProductService {
                     productsForUpdate.add(existingProduct);
                 });
 
-        if(!productsForUpdate.isEmpty()) {
+        if (!productsForUpdate.isEmpty()) {
             productRepository.saveAll(productsForUpdate);
             var approvedMessage = new SalesConfirmationDTO(product.salesId(), SalesStatus.APPROVED, product.transactionid());
             salesConfirmationSender.sendSalesConfirmationMessage(approvedMessage);
@@ -149,7 +152,7 @@ public class ProductService {
             var response = new ProductSalesResponse(product, sales.salesIds());
 
             log.info("Response to GET sales by productId with data: {} | [transactionid {} | serviceid {}]",
-                    new ObjectMapper().writeValueAsString(response), transactionId, serviceId);
+                    objectMapper.writeValueAsString(response), transactionId, serviceId);
 
             return response;
         } catch (Exception ex) {
@@ -161,15 +164,16 @@ public class ProductService {
     private SalesProductResponse getSalesByProductId(Integer id) {
         var currentRequest = RequestUtils.getCurrentRequest();
         var transactionId = currentRequest.getHeader(TRANSACTION_ID);
+        var token = currentRequest.getHeader(AUTHORIZATION);
         try {
             log.info("Sending request to Sales API with productId: {} | [transactionid {}]",
                     id, transactionId);
 
-            var salesResponse = salesClient.findSalesByProductId(id)
+            var salesResponse = salesClient.findSalesByProductId(id, token, transactionId)
                     .orElseThrow(() -> new BusinessRuleException("The sales was not found by this product"));
 
             log.info("Success response from Sales-API with data: {} | [transactionid {}]",
-                    new ObjectMapper().writeValueAsString(salesResponse), transactionId);
+                    objectMapper.writeValueAsString(salesResponse), transactionId);
 
             return salesResponse;
         } catch (Exception ex) {
@@ -185,7 +189,7 @@ public class ProductService {
             var serviceId = currentRequest.getAttribute(SERVICE_ID);
 
             log.info("Request to POST product stock with data {} | [transactionid {} | serviceid {}]",
-                    new ObjectMapper().writeValueAsString(request), transactionId, serviceId);
+                    objectMapper.writeValueAsString(request), transactionId, serviceId);
 
             if (isEmpty(request) || isEmpty(request.products())) {
                 throw new BusinessRuleException("The request data and products must be informed.");
@@ -195,7 +199,7 @@ public class ProductService {
             var response = new SuccessResponse("The stock is ok!");
 
             log.info("Response to POST product stock with data: {} | [transactionid {} | serviceid {}]`",
-                    new ObjectMapper().writeValueAsString(response), transactionId, serviceId);
+                    objectMapper.writeValueAsString(response), transactionId, serviceId);
 
             return response;
         } catch (Exception ex) {

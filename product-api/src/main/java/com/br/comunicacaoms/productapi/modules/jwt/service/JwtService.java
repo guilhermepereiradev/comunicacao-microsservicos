@@ -18,6 +18,7 @@ public class JwtService {
 
     @Value("${app-config.secrets.api-secret}")
     private String apiSecret;
+
     public void validateAuthorization(String token) {
         var accessToken = extractToken(token);
         try {

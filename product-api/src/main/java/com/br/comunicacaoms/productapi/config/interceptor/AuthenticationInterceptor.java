@@ -4,20 +4,20 @@ import com.br.comunicacaoms.productapi.config.exceptions.ValidationException;
 import com.br.comunicacaoms.productapi.modules.jwt.service.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.util.UUID;
 
+@RequiredArgsConstructor
 public class AuthenticationInterceptor implements HandlerInterceptor {
 
-    private static final String AUTHORIZATION = "Authorization";
+    private final String AUTHORIZATION = "Authorization";
     private final String TRANSACTION_ID = "transactionid";
     private final String SERVICE_ID = "serviceid";
 
-    @Autowired
-    private JwtService jwtService;
+    private final JwtService jwtService;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {

@@ -15,11 +15,12 @@ import org.springframework.stereotype.Component;
 public class ProductStockListener {
 
     private final ProductService productService;
+    private final ObjectMapper objectMapper;
 
     @RabbitListener(queues = "${app-config.rabbit.queue.product-stock}")
     public void receiverProductStockMessage(ProductStockDTO product) throws JsonProcessingException {
 
-        log.info("Receiving message with data: {}", new ObjectMapper().writeValueAsString(product));
+        log.info("Receiving message with data: {}", objectMapper.writeValueAsString(product));
         productService.updateProductStock(product);
     }
 }

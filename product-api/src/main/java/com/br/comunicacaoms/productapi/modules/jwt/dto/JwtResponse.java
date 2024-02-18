@@ -18,7 +18,7 @@ public class JwtResponse {
     private Integer id;
     private String name;
     private String email;
-
+    
     public static JwtResponse getUser(Claims jwtClaims) {
         try {
             return new ObjectMapper().convertValue(jwtClaims.get("authUser"), JwtResponse.class);
