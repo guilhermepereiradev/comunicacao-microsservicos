@@ -35,6 +35,8 @@ services:
       - 5672:5672
       - 25676:25676
       - 15672:15672
+    networks:
+      - sales-network
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
@@ -108,7 +110,7 @@ services:
       - PORT=8082
       - API_SECRET=ZXhpc3RlIFVNIGdyYW5kZSBjbHViZSBuYSBjaWRhZGUsIENSVVpFSVJPIEVTUE9SVEUgQ0xVQkU=
       - MONGO_DB_URL=mongodb://admin:12345678@sales-db:27017/
-      - RABBIT_MQ_URL=amqp://sales_rabbit:5672
+      - RABBIT_MQ_URL=amqp://guest:guest@sales_rabbit:5672/
       - PRODUCT_API_URL=http://product-api:8081/api/products
       - NODE_ENV=container
     ports:
