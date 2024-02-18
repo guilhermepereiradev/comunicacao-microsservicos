@@ -9,8 +9,8 @@ export const API_SECRET = env.API_SECRET
     : "Y3J1emVpcm8sIGNydXplaXJvIHF1ZXJpZG8sIHTDoG8gY29tYmF0aWRvLCBqYW1haXMgdmVuY2lkbw==";
 
 export const RABBIT_MQ_URL = env.RABBIT_MQ_URL
-    ? env.API_SECRET
-    : "amqp://localhost:5672";
+    ? env.RABBIT_MQ_URL
+    : "amqp://guest:guest@localhost:5672/";
 
 export const PRODUCT_API_URL = env.PRODUCT_API_URL
     ? env.PRODUCT_API_URL

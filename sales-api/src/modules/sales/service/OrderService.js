@@ -108,14 +108,13 @@ class OrderService {
                 throw new OrderException(httpStatus.NOT_FOUND, `No orders were found for product ID: ${id}`);
             }
 
-            response = {
+            let response = {
                 status: httpStatus.SUCCESS,
                 salesIds: orders.map(order => {
-                    console.log(order)
                     return order.id
                 })
             };
-
+            
             console.info(`Response to GET orders by productId: ${JSON.stringify(response)} | [transactionid: ${transactionid} | serviceid: ${serviceid}]`);
             return response;
         } catch(err) {
