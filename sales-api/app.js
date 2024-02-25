@@ -35,17 +35,26 @@ app.get("/api/initial-data", (req, res) => {
 })
 
 
+app.get("/", (req, res) => {
+    return res.status(200).json(getSuccessReponse());
+})
+
 app.use(tracing);
 app.use(checkToken);
 app.use(orderRoutes);
 
-app.get("/api/status", async (req, res)=> {
-    return res.status(200).json({
+app.get("/api/status", (req, res) => {
+    return res.status(200).json(getSuccessReponse());
+})
+
+function getSuccessReponse() {
+    return {
         service: "Sales-API",
         status: "up",
         httpStatus: 200,
-    });
-})
+    };
+}
+
 
 
 app.listen(PORT, () => {
